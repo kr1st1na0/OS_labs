@@ -1,5 +1,3 @@
-// #pragma once
-
 #include "utils.hpp"
 
 void createPipe(int fd[2]) {

@@ -4,7 +4,7 @@ void parentProcess(std::string_view pathToChild) {
     std::string fileName;
     getline(std::cin, fileName);
 
-    int fd1[2], fd2[2]; //* file descriptor
+    int fd1[2], fd2[2];
     createPipe(fd1);
     createPipe(fd2);
     
