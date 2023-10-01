@@ -1,6 +1,6 @@
 #include "parent.hpp"
 
-void parentProcess(std::string_view pathToChild) {
+void parentProcess(const char *pathToChild) {
     std::string fileName;
     getline(std::cin, fileName);
 
@@ -15,7 +15,8 @@ void parentProcess(std::string_view pathToChild) {
         
         std::string str;
         while (getline(std::cin, str)) {
-            write(fd1[1], (str + "\n").c_str(), str.length() + 1); // from str to fd1[1]
+            str += "\n";
+            write(fd1[1], str.c_str(), str.length()); // from str to fd1[1]
         }
         close(fd1[1]);
 
@@ -33,7 +34,7 @@ void parentProcess(std::string_view pathToChild) {
             exit(EXIT_FAILURE);
         }
         
-        if (execlp(std::string(pathToChild).c_str(), std::string(pathToChild).c_str(), fileName.c_str(), NULL) == -1) { // to child.cpp
+        if (execlp(std::string(pathToChild).c_str(), std::string(pathToChild).c_str(), fileName.c_str(), nullptr) == -1) { // to child.cpp
             perror("Error with execlp");
             exit(EXIT_FAILURE);
         } 

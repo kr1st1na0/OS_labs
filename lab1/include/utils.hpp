@@ -11,4 +11,4 @@
 void createPipe(int fd[2]);
 pid_t createChildProcess();
 std::stringstream readFromPipe (int fd);
-bool checkString(std::string str);
+bool checkString(std::string &str);

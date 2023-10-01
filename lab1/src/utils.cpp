@@ -17,22 +17,26 @@ pid_t createChildProcess() {
 }
 
 std::stringstream readFromPipe (int fd) {
-    char c;
+    const int bufferSize = 256;
+    char buffer[bufferSize] = "";
+    // char c;
     std::stringstream stream;
-    while(true) {
-        int t = read(fd, &c, sizeof(char));
+    while(true) {       
+        int t = read(fd, &buffer, bufferSize);
+        // int t = read(fd, &c, sizeof(char)); 
         if (t == -1) {
             perror("Couldn't read from pipe");
             exit(EXIT_FAILURE);
         } else if (t > 0) {
-            stream << c;    
+            stream << buffer;    
+            // stream << c;
         } else {
             return stream;
         }
     }
 }
 
-bool checkString(std::string str) {
+bool checkString(std::string &str) {
     if (str[str.size() - 1] == '.' || str[str.size() - 1] == ';') {
         return true;
     }

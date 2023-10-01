@@ -6,11 +6,11 @@ int main(int argc, char *argv[]) {
         exit(EXIT_FAILURE);
     }
 
-    std::string fileName = argv[1];
-    std::ofstream fout(fileName);
+    std::string_view fileName = argv[1];
+    std::ofstream fout(std::string(fileName).c_str());
     if (!fout.is_open()) {
         perror("Couldn't open the file");
-        return 1;
+        exit(EXIT_FAILURE);
     }
     
     std::string str;
