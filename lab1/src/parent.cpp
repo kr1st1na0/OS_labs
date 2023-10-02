@@ -34,7 +34,7 @@ void parentProcess(const char *pathToChild) {
             exit(EXIT_FAILURE);
         }
         
-        if (execlp(std::string(pathToChild).c_str(), std::string(pathToChild).c_str(), fileName.c_str(), nullptr) == -1) { // to child.cpp
+        if (execlp(pathToChild, pathToChild, fileName.c_str(), nullptr) == -1) { // to child.cpp
             perror("Error with execlp");
             exit(EXIT_FAILURE);
         } 

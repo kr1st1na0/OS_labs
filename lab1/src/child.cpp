@@ -6,8 +6,8 @@ int main(int argc, char *argv[]) {
         exit(EXIT_FAILURE);
     }
 
-    std::string_view fileName = argv[1];
-    std::ofstream fout(std::string(fileName).c_str());
+    const char *fileName = argv[1];
+    std::ofstream fout(fileName);
     if (!fout.is_open()) {
         perror("Couldn't open the file");
         exit(EXIT_FAILURE);

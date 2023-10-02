@@ -8,10 +8,11 @@
 
 namespace fs = std::filesystem;
 
-void testingProgram(std::vector<std::string> input, std::vector<std::string> expectedOutput, std::vector<std::string> expectedFile) {
+void testingProgram(const std::vector<std::string> &input, const std::vector<std::string> &expectedOutput, const std::vector<std::string> &expectedFile) {
+    const char *fileName = "file.txt";
 
     std::stringstream inFile;
-    inFile << "file.txt" << std::endl;
+    inFile << fileName << std::endl;
     for (std::string line : input) {
         inFile << line << std::endl;
     }
@@ -32,7 +33,7 @@ void testingProgram(std::vector<std::string> input, std::vector<std::string> exp
         EXPECT_EQ(result, expectation);
     }
 
-    std::ifstream fin("file.txt");
+    std::ifstream fin(fileName);
     if (!fin.is_open()) {
         perror("Couldn't open the file");
         exit(EXIT_FAILURE);
