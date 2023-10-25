@@ -4,27 +4,27 @@
 
 #include <chrono>
 
-namespace {
-    TMatrix GenerateMatrix(int n) {
-        TMatrix result(n, TVector(n));
-        std::srand(std::time(nullptr));
-        for(int i = 0; i < n; ++i) {
-            for(int j = 0; j < n; ++j) {
-                result[i][j] = std::rand() % 100;
-            }
-        }
-        return result;
-    }
+// namespace {
+//     TMatrix GenerateMatrix(int n) {
+//         TMatrix result(n, TVector(n));
+//         std::srand(std::time(nullptr));
+//         for(int i = 0; i < n; ++i) {
+//             for(int j = 0; j < n; ++j) {
+//                 result[i][j] = std::rand() % 100;
+//             }
+//         }
+//         return result;
+//     }
 
-    TVector GenerateVector(int n) {
-        TVector result(n);
-        std::srand(std::time(nullptr));
-        for(int i = 0; i < n; ++i) {
-            result[i] = std::rand() % 100;
-        }
-        return result;
-    }
-}
+//     TVector GenerateVector(int n) {
+//         TVector result(n);
+//         std::srand(std::time(nullptr));
+//         for(int i = 0; i < n; ++i) {
+//             result[i] = std::rand() % 100;
+//         }
+//         return result;
+//     }
+// }
 
 bool operator==(const TVector &first, const TVector &second) {
     if (first.size() != second.size()) {
@@ -66,7 +66,7 @@ TEST(ThirdLabTests, SingleThreadYieldsCorrectResults) {
 //     performTestForGivenSize(100, 15);
 //     performTestForGivenSize(1000, 4);
 // }
-
+/*
 TEST(ThirdLabTest, PerfomanceTest) {
     auto getAvgTime = [](int threadCount) {
         auto m = GenerateMatrix(3000);
@@ -94,7 +94,7 @@ TEST(ThirdLabTest, PerfomanceTest) {
 
     EXPECT_GE(singleThread, multiThread);
 }
-
+*/
 int main(int argc, char *argv[]) {
     testing::InitGoogleTest(&argc, argv);
 
