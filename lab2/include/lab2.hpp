@@ -15,12 +15,21 @@ struct Args {
     int endRow = 0;
     TMatrix *lhs = nullptr;
     TVector *rhs = nullptr;
-    int leadRow;
+    int leadRow = 0;
+};
+
+struct ArgsForMax{
+    int start = 0;
+    int end = 0;
+    std::vector<std::pair<double, int> > *maxElements = nullptr;
+    const TMatrix *matrix = nullptr;
+    long threadNum = 0;
 };
 
 
-void printMatrix(const TMatrix &matrix, const TVector &vector);
-int maxElemRow(const TVector &tRow, int start);
-void swapRows(TMatrix &lhs, TVector &rhs, int first, int second);
-void *normalization(void *arguments);
-void gaussMethod(long threadAmount, TMatrix &lhs, TVector &rhs, TVector &answer);
+void *MaxElem(void *arguments);
+int MaxElemRowParal(const TMatrix &matrix, int start, long threadAmount);
+int MaxElemRow(const TMatrix &matrix, int start);
+void SwapRows(TMatrix &lhs, TVector &rhs, int first, int second);
+void *Normalization(void *arguments);
+TVector GaussMethod(long threadAmount, const TMatrix &lhs, const TVector &rhs);
