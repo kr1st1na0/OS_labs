@@ -7,7 +7,9 @@
 #include <math.h>
 #include <pthread.h>
 
-using TVector = std::vector<double>;
+using ldbl = long double;
+
+using TVector = std::vector<ldbl>;
 using TMatrix = std::vector<TVector>;
 
 struct Args {
@@ -21,7 +23,7 @@ struct Args {
 struct ArgsForMax{
     int start = 0;
     int end = 0;
-    std::vector<std::pair<double, int> > *maxElements = nullptr;
+    std::vector<std::pair<ldbl, int> > *maxElements = nullptr;
     const TMatrix *matrix = nullptr;
     long threadNum = 0;
 };

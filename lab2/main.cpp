@@ -15,7 +15,6 @@ int main(int argc, char *argv[]) {
 
     TMatrix lhs(n, TVector(n));
     TVector rhs(n);
-    
 
     auto readMatrix = [n](TMatrix &matrix) {
         for (int i = 0; i < n; ++i) {
@@ -46,7 +45,7 @@ int main(int argc, char *argv[]) {
     readVector(rhs);
     std::cout << "The system of equations in matrix:" << std::endl;
     printMatrix(lhs, rhs);
-    
+
     auto answer = GaussMethod(threadAmount, lhs, rhs);
     std::cout << "The solution:" << std::endl;
     for (int i = 0; i < n; ++i) {

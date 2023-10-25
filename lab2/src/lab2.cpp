@@ -9,7 +9,7 @@ void *MaxElem(void *arguments) {
     auto &maxElements = *args.maxElements;
     auto &matrix = *args.matrix;
     auto &threadNum = args.threadNum;
-    double maxElem = fabs(matrix[start][start]);
+    ldbl maxElem = fabs(matrix[start][start]);
     int row = start;
     for (int i = start; i < end; ++i) {
         if (fabs(matrix[i][start]) > maxElem) {
@@ -32,8 +32,8 @@ int MaxElemRowParal(const TMatrix &matrix, int start, long threadAmount) {
         return start;
     }
     long rowsPerThread = std::max(1L, (long)(((matrix.size()) - start) / threadAmountPerIter));
-    std::vector<std::pair<double, int>> maxElements(threadAmountPerIter);
-    double absoluteMax = fabs(matrix[start][start]);
+    std::vector<std::pair<ldbl, int>> maxElements(threadAmountPerIter);
+    ldbl absoluteMax = fabs(matrix[start][start]);
     int row = start;
     std::vector<pthread_t> threads(threadAmountPerIter);
     for (long n = 0; n < threadAmountPerIter; ++n) {   
@@ -58,7 +58,7 @@ int MaxElemRowParal(const TMatrix &matrix, int start, long threadAmount) {
 
 int MaxElemRow(const TMatrix &matrix, int start) {
     int matrixSize = matrix.size();
-    double maxElem = fabs(matrix[start][start]);
+    ldbl maxElem = fabs(matrix[start][start]);
     int row = start;
     for (int i = start; i < matrixSize; ++i) {
         if (fabs(matrix[i][start]) > maxElem) {
@@ -86,7 +86,7 @@ void *Normalization(void *arguments) {
     auto &leadRow = args.leadRow;
     int matrixSize = leftMatrix.size();
     for (int i = startRow; i < endRow; ++i) {
-        double coef = -leftMatrix[i][leadRow] / leftMatrix[leadRow][leadRow];
+        ldbl coef = -leftMatrix[i][leadRow] / leftMatrix[leadRow][leadRow];
         leftMatrix[i][leadRow] = 0.0;
         for (int j = leadRow + 1; j < matrixSize; ++j) {
             leftMatrix[i][j] += leftMatrix[leadRow][j] * coef;
@@ -112,7 +112,7 @@ TVector GaussMethod(long threadAmount, const TMatrix &Mlhs, const TVector &Vrhs)
             return {0};
         }
         // Leading string conversion
-        double leadElem = lhs[leadRow][i];
+        ldbl leadElem = lhs[leadRow][i];
         for (int k = 0; k < matrixSize; ++k) {
             lhs[leadRow][k] /= leadElem;
         }

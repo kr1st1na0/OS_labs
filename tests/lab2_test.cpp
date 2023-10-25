@@ -2,36 +2,39 @@
 
 #include "lab2.hpp"
 
+#include <limits>
 #include <chrono>
 
-// namespace {
-//     TMatrix GenerateMatrix(int n) {
-//         TMatrix result(n, TVector(n));
-//         std::srand(std::time(nullptr));
-//         for(int i = 0; i < n; ++i) {
-//             for(int j = 0; j < n; ++j) {
-//                 result[i][j] = std::rand() % 100;
-//             }
-//         }
-//         return result;
-//     }
+const ldbl LDBL_PRECISION = 0.0001;
 
-//     TVector GenerateVector(int n) {
-//         TVector result(n);
-//         std::srand(std::time(nullptr));
-//         for(int i = 0; i < n; ++i) {
-//             result[i] = std::rand() % 100;
-//         }
-//         return result;
-//     }
-// }
+namespace {
+    TMatrix GenerateMatrix(int n) {
+        TMatrix result(n, TVector(n));
+        std::srand(std::time(nullptr));
+        for(int i = 0; i < n; ++i) {
+            for(int j = 0; j < n; ++j) {
+                result[i][j] = std::rand() % 100;
+            }
+        }
+        return result;
+    }
+
+    TVector GenerateVector(int n) {
+        TVector result(n);
+        std::srand(std::time(nullptr));
+        for(int i = 0; i < n; ++i) {
+            result[i] = std::rand() % 100;
+        }
+        return result;
+    }
+}
 
 bool operator==(const TVector &first, const TVector &second) {
     if (first.size() != second.size()) {
         return false;
     }
     for(size_t i = 0; i < first.size(); ++i) {
-        if (first[i] != second[i]) {
+        if (!(std::fabs(first[i] - second[i]) < LDBL_PRECISION)) {
             return false;
         }
     }
@@ -39,34 +42,39 @@ bool operator==(const TVector &first, const TVector &second) {
 }
 
 TEST(ThirdLabTests, SingleThreadYieldsCorrectResults) {
-    EXPECT_EQ( (GaussMethod(1, TMatrix{{1, -1}, {2, 1}}, TVector{-5, -7})), (TVector{-4, 1}));
-
-    //! error
+    ASSERT_TRUE( (GaussMethod(1, TMatrix{{1, -1}, {2, 1}}, TVector{-5, -7})) == (TVector{-4, 1}));
+    // EXPECT_EQ( (GaussMethod(1, TMatrix{{1, -1}, {2, 1}}, TVector{-5, -7})), (TVector{-4, 1}));
+    
+    ASSERT_TRUE((GaussMethod(1, TMatrix{{2, 4, 1}, {5, 2, 1}, {2, 3, 4}}, TVector{36, 47, 37})) == (TVector{7, 5, 2}));
     // EXPECT_EQ( (GaussMethod(1, TMatrix{{2, 4, 1}, {5, 2, 1}, {2, 3, 4}}, TVector{36, 47, 37})), (TVector{7, 5, 2}));
 
+    ASSERT_TRUE( (GaussMethod(1, TMatrix{{3, 2, -5}, {2, -1, 3}, {1, 2, -1}}, TVector{-1, 13, 9})) == (TVector{3, 5, 4}));
     // EXPECT_EQ( (GaussMethod(1, TMatrix{{3, 2, -5}, {2, -1, 3}, {1, 2, -1}}, TVector{-1, 13, 9})), (TVector{3, 5, 4}));
 
+    ASSERT_TRUE( (GaussMethod(1, TMatrix{{1, 1, 2, 3}, {1, 2, 3, -1}, {3, -1, -1, -2}, {2, 3, -1, -1}}, TVector{1, -4, -4, -6})) == 
+    (TVector{-1, -1, 0, 1}));
     // EXPECT_EQ( (GaussMethod(1, TMatrix{{1, 1, 2, 3}, {1, 2, 3, -1}, {3, -1, -1, -2}, {2, 3, -1, -1}}, TVector{1, -4, -4, -6})), 
     // (TVector{-1, -1, 0, 1}));
 }
 
-// TEST(ThirdLabTest, ThreadConfigurations) {
-//     auto performTestForGivenSize = [](int n, int maxThreadCount) {
-//         auto m = GenerateMatrix(n);
-//         auto v = GenerateVector(n);
-//         auto result = GaussMethod(1, m, v);
+TEST(ThirdLabTest, ThreadConfigurations) {
+    auto performTestForGivenSize = [](int n, int maxThreadCount) {
+        auto m = GenerateMatrix(n);
+        auto v = GenerateVector(n);
+        auto result = GaussMethod(1, m, v);
 
-//         for(int i = 2; i < maxThreadCount; ++i) {
-//             EXPECT_EQ(GaussMethod(i, m, v), result);
-//         }
-//     };
+        for(int i = 2; i < maxThreadCount; ++i) {
+            ASSERT_TRUE((GaussMethod(i, m, v)) == (result));     
+            // EXPECT_EQ((GaussMethod(i, m, v)), (result));
+        }
+    };
 
-//     performTestForGivenSize(3, 10);
-//     performTestForGivenSize(10, 10);
-//     performTestForGivenSize(100, 15);
-//     performTestForGivenSize(1000, 4);
-// }
-/*
+    performTestForGivenSize(3, 10);
+    performTestForGivenSize(10, 10);
+    performTestForGivenSize(100, 15);
+    performTestForGivenSize(1000, 4);
+}
+
 TEST(ThirdLabTest, PerfomanceTest) {
     auto getAvgTime = [](int threadCount) {
         auto m = GenerateMatrix(3000);
@@ -94,9 +102,12 @@ TEST(ThirdLabTest, PerfomanceTest) {
 
     EXPECT_GE(singleThread, multiThread);
 }
-*/
+
 int main(int argc, char *argv[]) {
     testing::InitGoogleTest(&argc, argv);
+
+    std::cout.precision(15);
+    std::cout.setf(std::ios_base::fixed, std::ios_base::floatfield);
 
     return RUN_ALL_TESTS();
 }
