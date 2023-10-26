@@ -41,7 +41,7 @@ bool operator==(const TVector &first, const TVector &second) {
     return true;
 }
 
-TEST(ThirdLabTests, SingleThreadYieldsCorrectResults) {
+TEST(SecondLabTests, SingleThreadYieldsCorrectResults) {
     ASSERT_TRUE( (GaussMethod(1, TMatrix{{1, -1}, {2, 1}}, TVector{-5, -7})) == (TVector{-4, 1}));
     // EXPECT_EQ( (GaussMethod(1, TMatrix{{1, -1}, {2, 1}}, TVector{-5, -7})), (TVector{-4, 1}));
     
@@ -57,7 +57,7 @@ TEST(ThirdLabTests, SingleThreadYieldsCorrectResults) {
     // (TVector{-1, -1, 0, 1}));
 }
 
-TEST(ThirdLabTest, ThreadConfigurations) {
+TEST(SecondLabTest, ThreadConfigurations) {
     auto performTestForGivenSize = [](int n, int maxThreadCount) {
         auto m = GenerateMatrix(n);
         auto v = GenerateVector(n);
@@ -75,7 +75,7 @@ TEST(ThirdLabTest, ThreadConfigurations) {
     performTestForGivenSize(1000, 4);
 }
 
-TEST(ThirdLabTest, PerfomanceTest) {
+TEST(SecondLabTest, PerfomanceTest) {
     auto getAvgTime = [](int threadCount) {
         auto m = GenerateMatrix(3000);
         auto v = GenerateVector(3000);
