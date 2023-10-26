@@ -4,8 +4,8 @@
 
 void *MaxElem(void *arguments) {
     const auto &args = *(reinterpret_cast<ArgsForMax *>(arguments));
-    auto &start = args.start;
-    auto &end = args.end;
+    auto start = args.start;
+    auto end = args.end;
     auto &maxElements = *args.maxElements;
     auto &matrix = *args.matrix;
     auto &threadNum = args.threadNum;
@@ -32,7 +32,7 @@ int MaxElemRowParal(const TMatrix &matrix, int start, long threadAmount) {
         return start;
     }
     long rowsPerThread = std::max(1L, (long)(((matrix.size()) - start) / threadAmountPerIter));
-    std::vector<std::pair<ldbl, int>> maxElements(threadAmountPerIter);
+    std::vector<MaxWithRow> maxElements(threadAmountPerIter);
     ldbl absoluteMax = fabs(matrix[start][start]);
     int row = start;
     std::vector<pthread_t> threads(threadAmountPerIter);
@@ -48,9 +48,9 @@ int MaxElemRowParal(const TMatrix &matrix, int start, long threadAmount) {
         pthread_join(thread, nullptr);
     }
     for (int i = 0; i < threadAmountPerIter; ++i) {
-        if (maxElements[i].first > absoluteMax) {
-            absoluteMax = maxElements[i].first;
-            row = maxElements[i].second;
+        if (maxElements[i].value > absoluteMax) {
+            absoluteMax = maxElements[i].value;
+            row = maxElements[i].row;
         }
     }
     return row;
@@ -79,11 +79,11 @@ void SwapRows(TMatrix &lhs, TVector &rhs, int first, int second) {
 
 void *Normalization(void *arguments) {
     const auto &args = *(reinterpret_cast<Args *>(arguments));
-    auto &startRow = args.startRow;
-    auto &endRow = args.endRow;
+    auto startRow = args.startRow;
+    auto endRow = args.endRow;
     auto &leftMatrix = *args.lhs;
-    auto &rigthVector = *args.rhs;
-    auto &leadRow = args.leadRow;
+    auto &rightVector = *args.rhs;
+    auto leadRow = args.leadRow;
     int matrixSize = leftMatrix.size();
     for (int i = startRow; i < endRow; ++i) {
         ldbl coef = -leftMatrix[i][leadRow] / leftMatrix[leadRow][leadRow];
@@ -91,7 +91,7 @@ void *Normalization(void *arguments) {
         for (int j = leadRow + 1; j < matrixSize; ++j) {
             leftMatrix[i][j] += leftMatrix[leadRow][j] * coef;
         }
-        rigthVector[i] += rigthVector[leadRow] * coef;
+        rightVector[i] += rightVector[leadRow] * coef;
     }
     return nullptr;
 }

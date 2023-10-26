@@ -8,7 +8,7 @@ int main(int argc, char *argv[]) {
         return -1;
     }
 
-    long threadAmount = strtol(argv[1], nullptr, 10);
+    long threadAmount = std::stol(argv[1], nullptr, 10);
 
     int n;
     std::cin >> n;

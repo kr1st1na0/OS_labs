@@ -20,10 +20,15 @@ struct Args {
     int leadRow = 0;
 };
 
-struct ArgsForMax{
+struct MaxWithRow {
+    ldbl value;
+    int row;
+};
+
+struct ArgsForMax {
     int start = 0;
     int end = 0;
-    std::vector<std::pair<ldbl, int> > *maxElements = nullptr;
+    std::vector<MaxWithRow> *maxElements = nullptr;
     const TMatrix *matrix = nullptr;
     long threadNum = 0;
 };

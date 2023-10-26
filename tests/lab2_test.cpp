@@ -29,7 +29,7 @@ namespace {
     }
 }
 
-bool operator==(const TVector &first, const TVector &second) {
+bool AreEqual(const TVector &first, const TVector &second) {
     if (first.size() != second.size()) {
         return false;
     }
@@ -42,19 +42,14 @@ bool operator==(const TVector &first, const TVector &second) {
 }
 
 TEST(SecondLabTests, SingleThreadYieldsCorrectResults) {
-    ASSERT_TRUE( (GaussMethod(1, TMatrix{{1, -1}, {2, 1}}, TVector{-5, -7})) == (TVector{-4, 1}));
-    // EXPECT_EQ( (GaussMethod(1, TMatrix{{1, -1}, {2, 1}}, TVector{-5, -7})), (TVector{-4, 1}));
+    ASSERT_TRUE( AreEqual(GaussMethod(1, TMatrix{{1, -1}, {2, 1}}, TVector{-5, -7}), TVector{-4, 1}) );
     
-    ASSERT_TRUE((GaussMethod(1, TMatrix{{2, 4, 1}, {5, 2, 1}, {2, 3, 4}}, TVector{36, 47, 37})) == (TVector{7, 5, 2}));
-    // EXPECT_EQ( (GaussMethod(1, TMatrix{{2, 4, 1}, {5, 2, 1}, {2, 3, 4}}, TVector{36, 47, 37})), (TVector{7, 5, 2}));
+    ASSERT_TRUE( AreEqual(GaussMethod(1, TMatrix{{2, 4, 1}, {5, 2, 1}, {2, 3, 4}}, TVector{36, 47, 37}), TVector{7, 5, 2}) );
 
-    ASSERT_TRUE( (GaussMethod(1, TMatrix{{3, 2, -5}, {2, -1, 3}, {1, 2, -1}}, TVector{-1, 13, 9})) == (TVector{3, 5, 4}));
-    // EXPECT_EQ( (GaussMethod(1, TMatrix{{3, 2, -5}, {2, -1, 3}, {1, 2, -1}}, TVector{-1, 13, 9})), (TVector{3, 5, 4}));
+    ASSERT_TRUE( AreEqual(GaussMethod(1, TMatrix{{3, 2, -5}, {2, -1, 3}, {1, 2, -1}}, TVector{-1, 13, 9}), TVector{3, 5, 4}) );
 
-    ASSERT_TRUE( (GaussMethod(1, TMatrix{{1, 1, 2, 3}, {1, 2, 3, -1}, {3, -1, -1, -2}, {2, 3, -1, -1}}, TVector{1, -4, -4, -6})) == 
-    (TVector{-1, -1, 0, 1}));
-    // EXPECT_EQ( (GaussMethod(1, TMatrix{{1, 1, 2, 3}, {1, 2, 3, -1}, {3, -1, -1, -2}, {2, 3, -1, -1}}, TVector{1, -4, -4, -6})), 
-    // (TVector{-1, -1, 0, 1}));
+    ASSERT_TRUE( AreEqual(GaussMethod(1, TMatrix{{1, 1, 2, 3}, {1, 2, 3, -1}, {3, -1, -1, -2}, {2, 3, -1, -1}}, TVector{1, -4, -4, -6}),  
+    TVector{-1, -1, 0, 1}) );
 }
 
 TEST(SecondLabTest, ThreadConfigurations) {
@@ -64,8 +59,7 @@ TEST(SecondLabTest, ThreadConfigurations) {
         auto result = GaussMethod(1, m, v);
 
         for(int i = 2; i < maxThreadCount; ++i) {
-            ASSERT_TRUE((GaussMethod(i, m, v)) == (result));     
-            // EXPECT_EQ((GaussMethod(i, m, v)), (result));
+            ASSERT_TRUE( AreEqual(GaussMethod(i, m, v), result) );
         }
     };
 
