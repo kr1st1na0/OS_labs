@@ -40,7 +40,7 @@ pid_t CreateChildProcess() {
     return pid;
 }
 
-bool CheckString(const std::string &str) {
+bool CheckString(const std::string_view str) {
     if (str[str.size() - 1] == '.' || str[str.size() - 1] == ';') {
         return true;
     }

@@ -28,4 +28,4 @@ sem_t* OpenSemaphore(const char *name, int value);
 int OpenSharedMemory(const char *name, const int size);
 char* MapSharedMemory(const int size, int fd);
 pid_t CreateChildProcess();
-bool CheckString(const std::string &str);
+bool CheckString(const std::string_view str);

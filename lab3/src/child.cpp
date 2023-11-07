@@ -21,9 +21,9 @@ int main(int argc, char *argv[]) {
     int shared_memory_fd2 = OpenSharedMemory(SHARED_MEMORY_NAME_2, MAP_SIZE);
     char* memptr2 = MapSharedMemory(MAP_SIZE, shared_memory_fd2);
 
-    while (true) {
+    while (1) {
         sem_wait(semptr1);
-        std::string str(memptr1);
+        std::string_view str(memptr1);
         if (str.empty()) {
             sem_post(semptr2);
             break;
