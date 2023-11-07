@@ -16,8 +16,16 @@
 #include <sys/stat.h>
 #include <semaphore.h>
 
-sem_t* OpenSemaphore(const char *SEMAPHORE_NAME);
-int OpenSharedMemory(const char *SHARED_MEMORY_NAME, const int MAP_SIZE);
-char* MapSharedMemory(const int MAP_SIZE, int sh_fd);
+const int MAP_SIZE = 1024;
+
+constexpr const char *SEMAPHORE_NAME_1 = "/semaphore_1";
+constexpr const char *SHARED_MEMORY_NAME_1 = "/shared_memory_1";
+
+constexpr const char *SEMAPHORE_NAME_2 = "/semaphore_2";
+constexpr const char *SHARED_MEMORY_NAME_2 = "/shared_memory_2";
+
+sem_t* OpenSemaphore(const char *name, int value);
+int OpenSharedMemory(const char *name, const int size);
+char* MapSharedMemory(const int size, int fd);
 pid_t CreateChildProcess();
 bool CheckString(const std::string &str);

@@ -13,34 +13,40 @@ int main(int argc, char *argv[]) {
         exit(EXIT_FAILURE);
     }
 
-    const char *SEMAPHORE_NAME = "semaphore";
-    const int MAP_SIZE = 1024;
-    const char *SHARED_MEMORY_NAME = "/shared_memory";
+    sem_t *semptr1 = OpenSemaphore(SEMAPHORE_NAME_1, 0);
+    int shared_memory_fd1 = OpenSharedMemory(SHARED_MEMORY_NAME_1, MAP_SIZE);
+    char *memptr1 = MapSharedMemory(MAP_SIZE, shared_memory_fd1);
 
-    sem_t* semptr = sem_open(SEMAPHORE_NAME, 0);
-    int shared_memory_fd = shm_open(SHARED_MEMORY_NAME, O_RDWR, 0);
-    char* memptr = (char*)mmap(nullptr, MAP_SIZE, PROT_READ | PROT_WRITE, MAP_SHARED, shared_memory_fd, 0);
-    
-    // sem_t* semptr2 = sem_open("semaphore2", 0);
-    int shared_memory_fd2 = shm_open("/shared_memory2", O_RDWR, 0);
-    char* memptr2 = (char*)mmap(nullptr, MAP_SIZE, PROT_READ | PROT_WRITE, MAP_SHARED, shared_memory_fd2, 0);
+    sem_t *semptr2 = OpenSemaphore(SEMAPHORE_NAME_2, 0);
+    int shared_memory_fd2 = OpenSharedMemory(SHARED_MEMORY_NAME_2, MAP_SIZE);
+    char* memptr2 = MapSharedMemory(MAP_SIZE, shared_memory_fd2);
 
-    sem_wait(semptr);
-
-    std::string str(memptr);
-    while (std::getline(std::cin, str)) {
-        //! std::cout << str << std::endl;
+    while (true) {
+        sem_wait(semptr1);
+        std::string str(memptr1);
+        if (str.empty()) {
+            sem_post(semptr2);
+            break;
+        }
         if (CheckString(str)) {
             fout << str << std::endl;
         } else {
-            // sem_wait(semptr2);
-            strcpy(memptr2, str.c_str());
-            memptr2 += str.size() + 1;
-            // sem_post(semptr2);
+            strcpy(memptr2, "ERROR_STRING");
         }
+        sem_post(semptr2);
     }
 
-    sem_post(semptr);
-    sem_close(semptr);
+    sem_close(semptr1);
+    sem_unlink(SEMAPHORE_NAME_1);
+    shm_unlink(SHARED_MEMORY_NAME_1);
+    munmap(memptr1, MAP_SIZE);
+    close(shared_memory_fd1);
+
+    sem_close(semptr2);
+    sem_unlink(SEMAPHORE_NAME_2);
+    shm_unlink(SHARED_MEMORY_NAME_2);
+    munmap(memptr2, MAP_SIZE);
+    close(shared_memory_fd2);
+
     exit(EXIT_SUCCESS);  
 }

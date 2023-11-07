@@ -1,7 +1,7 @@
 #include "utils.hpp"
 
-sem_t* OpenSemaphore(const char *name) {
-    sem_t *semptr = sem_open(name, O_CREAT, S_IRUSR | S_IWUSR, 1);
+sem_t* OpenSemaphore(const char *name, int value) {
+    sem_t *semptr = sem_open(name, O_CREAT, S_IRUSR | S_IWUSR, value);
     if (semptr == SEM_FAILED){
         perror("Couldn't open the semaphore");
         exit(EXIT_FAILURE);
@@ -23,7 +23,7 @@ int OpenSharedMemory(const char *name, const int size) {
 }
 
 char* MapSharedMemory(const int size, int fd) {
-    char *memptr = (char *) mmap(nullptr, size, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
+    char *memptr = (char*)mmap(nullptr, size, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
     if (memptr == MAP_FAILED) {
         perror("Error with file mapping");
         exit(EXIT_FAILURE);
