@@ -41,3 +41,18 @@ target_link_libraries(lab3_test PRIVATE pthread)
 target_link_libraries(lab3_test PRIVATE rt)
 
 add_test(lab3_test lab3_test)
+
+# Lab4
+add_executable(lab4_test1 lab4_test1.cpp ../lab4/include/realizations.hpp 
+        ../lab4/src/realization1.cpp)
+target_link_libraries(lab4_test1 PRIVATE GTest::GTest)
+target_include_directories(lab4_test1 PRIVATE ../lab4/include)
+
+add_test(lab4_test1 lab4_test1)
+
+add_executable(lab4_test2 lab4_test2.cpp ../lab4/include/realizations.hpp 
+        ../lab4/src/realization2.cpp)
+target_link_libraries(lab4_test2 PRIVATE GTest::GTest)
+target_include_directories(lab4_test2 PRIVATE ../lab4/include)
+
+add_test(lab4_test2 lab4_test2)
