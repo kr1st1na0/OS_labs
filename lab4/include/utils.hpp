@@ -5,5 +5,5 @@
 using SinIntegralFunc = float (*)(float, float, float);
 using PrimeCountFunc = int (*)(int, int);
 
-void* LoadLibrary(const std::string& libraryName);
+void* LoadLibrary(const char *libraryName);
 void UnloadLibrary(void* handle);
