@@ -8,12 +8,12 @@ find_package(Threads REQUIRED)
 add_compile_options(-Wno-error=deprecated-declarations -Wdeprecated-declarations)
 
 add_executable(client include/nodeRoutine.hpp include/socketRoutine.hpp
-        src/client.cpp
+        src/nodeRoutine.cpp src/socketRoutine.cpp src/client.cpp
 )
 target_include_directories(client PRIVATE include)
 
 add_executable(server include/nodeRoutine.hpp include/socketRoutine.hpp
-        src/server.cpp
+        src/nodeRoutine.cpp src/socketRoutine.cpp src/server.cpp
 )
 target_include_directories(server PRIVATE include)
 
