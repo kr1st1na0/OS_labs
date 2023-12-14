@@ -80,9 +80,8 @@ std::string Node::Send(const std::string& str, int id) {
 std::string Node::Kill() {
     std::string ans;
     for (auto& child : children) {
-        if (Ping(child.first) == "Ok: 1") {
-            std::string msg = "kill";
-            SendMessage(child.second, msg);
+        std::string msg = "kill";
+        if (SendMessage(child.second, msg)) {
             try {
                 msg = ReceiveMessage(child.second);
                 if(ans.size() > 0)
