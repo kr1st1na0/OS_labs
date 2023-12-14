@@ -5,9 +5,9 @@ std::string Node::Ping(int _id) {
     if (_id == id) {
         ans = "Ok: 1";
         return ans;
-    } else if (children.find(_id) != children.end()) {
+    } else if (auto it = children.find(_id); it != children.end()) {
         std::string msg = "ping " + std::to_string(_id);
-        SendMessage(children[_id], msg);
+        SendMessage(it->second, msg);
         try{
             msg  = ReceiveMessage(children[_id]);
             if (msg == "Ok: 1")
@@ -46,30 +46,30 @@ std::string Node::Pid() {
     return std::to_string(getpid());
 }
 
-std::string Node::Send(const std::string& str, int _id) {
+std::string Node::Send(const std::string& str, int id) {
     if (children.size() == 0) {
         return "Error: Not found";
-    } else if (children.find(_id) != children.end()) {
-        SendMessage(children[_id], str);
-        std::string ans;
-        try{
-            ans = ReceiveMessage(children[_id]);
-        } catch(int) {
-            ans = "Error: Not found";
+    } else if (auto it = children.find(id); it != children.end()) {
+        if (SendMessage(it->second, str)) {
+            std::string ans;
+            try{
+                ans = ReceiveMessage(children[id]);
+            } catch(int) {
+                ans = "Error: Not found";
+            }
+            return ans;
         }
-        return ans;
     } else {
         std::string ans = "Error: Not found";
         for (auto& child : children) {
-            if (Ping(child.first) == "Ok: 1") {
-                std::string msg = "send " + std::to_string(_id) + " " + str;
-                SendMessage(children[child.first], msg);
+            std::string msg = "send " + std::to_string(id) + " " + str;
+            if (SendMessage(child.second, msg)) {
                 try {
-                    msg = ReceiveMessage(children[child.first]);
-                    ans = msg;
+                    msg = ReceiveMessage(child.second);
                 } catch(int) {
                     msg = "Error: Not found";
                 }
+                ans = msg;
             }
         }
         return ans;
@@ -79,24 +79,22 @@ std::string Node::Send(const std::string& str, int _id) {
 
 std::string Node::Kill() {
     std::string ans;
-    if (children.size() > 0) {
-        for (auto& child: children ) {
-            if (Ping(child.first) == "Ok: 1") {
-                std::string msg = "kill";
-                SendMessage(children[child.first], msg);
-                try {
-                    msg = ReceiveMessage(children[child.first]);
-                    if(ans.size() > 0)
-                        ans = ans + " " + msg;
-                    else
-                        ans =  msg;
-                } catch(int) {}
-            }
-            Unbind(child.second, childrenPort[child.first]);
-            children[child.first]->close();
+    for (auto& child : children) {
+        if (Ping(child.first) == "Ok: 1") {
+            std::string msg = "kill";
+            SendMessage(child.second, msg);
+            try {
+                msg = ReceiveMessage(child.second);
+                if(ans.size() > 0)
+                    ans = ans + " " + msg;
+                else
+                    ans =  msg;
+            } catch(int) {}
         }
-        children.clear();
-        childrenPort.clear();
+        Unbind(child.second, childrenPort[child.first]);
+        child.second->close();
     }
+    children.clear();
+    childrenPort.clear();
     return ans;
 }

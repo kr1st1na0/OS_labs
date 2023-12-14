@@ -3,6 +3,7 @@
 #include <iostream>
 #include <sstream>
 #include <string>
+#include <optional>
 
 #include <zmq.hpp>
 
