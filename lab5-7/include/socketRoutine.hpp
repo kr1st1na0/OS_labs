@@ -14,4 +14,4 @@ void Connect(zmq::socket_t *socket, int port);
 void Disconnect(zmq::socket_t *socket, int port);
 
 bool SendMessage(zmq::socket_t *socket, const std::string& msg);
-std::string ReceiveMessage(zmq::socket_t *socket);
+std::optional<std::string> ReceiveMessage(zmq::socket_t *socket);

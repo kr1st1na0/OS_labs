@@ -8,10 +8,10 @@ std::string Node::Ping(int _id) {
     } else if (auto it = children.find(_id); it != children.end()) {
         std::string msg = "ping " + std::to_string(_id);
         SendMessage(it->second, msg);
-        try{
-            msg  = ReceiveMessage(children[_id]);
-            if (msg == "Ok: 1")
-                ans = msg;
+        try {            
+            if (auto msg = ReceiveMessage(children[_id]); msg.has_value(), msg == "Ok: 1") {
+                ans = *msg;
+            }
         } catch(int) {}
         return ans;
     }
@@ -30,10 +30,13 @@ std::string Node::Create(int idChild, const std::string& programPath) {
         execl(programPath.c_str(), programName.c_str(), std::to_string(idChild).c_str(), std::to_string(newPort).c_str(), nullptr);
     } else { // Parent process
         std::string pidChild;
-        try{
+        try {
             children[idChild]->setsockopt(ZMQ_SNDTIMEO,  3000);
             SendMessage(children[idChild], "pid");
-            pidChild = ReceiveMessage(children[idChild]);
+            if (auto msg = ReceiveMessage(children[idChild]); msg.has_value()) {
+                pidChild = *msg;
+            }
+
         } catch(int) {
             pidChild = "Error: couldn't connect to child";
         }
@@ -52,8 +55,10 @@ std::string Node::Send(const std::string& str, int id) {
     } else if (auto it = children.find(id); it != children.end()) {
         if (SendMessage(it->second, str)) {
             std::string ans;
-            try{
-                ans = ReceiveMessage(children[id]);
+            try {
+                if (auto msg = ReceiveMessage(children[id]); msg.has_value()) {
+                    ans = *msg;
+                }
             } catch(int) {
                 ans = "Error: Not found";
             }
@@ -65,7 +70,9 @@ std::string Node::Send(const std::string& str, int id) {
             std::string msg = "send " + std::to_string(id) + " " + str;
             if (SendMessage(child.second, msg)) {
                 try {
-                    msg = ReceiveMessage(child.second);
+                    if (auto tmp = ReceiveMessage(child.second); tmp.has_value()) {
+                        msg = *tmp;
+                    }
                 } catch(int) {
                     msg = "Error: Not found";
                 }
@@ -83,8 +90,10 @@ std::string Node::Kill() {
         std::string msg = "kill";
         if (SendMessage(child.second, msg)) {
             try {
-                msg = ReceiveMessage(child.second);
-                if(ans.size() > 0)
+                if (auto tmp = ReceiveMessage(child.second); tmp.has_value()) {
+                    msg = *tmp;
+                }
+                if (ans.size() > 0)
                     ans = ans + " " + msg;
                 else
                     ans =  msg;

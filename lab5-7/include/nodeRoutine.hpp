@@ -3,6 +3,7 @@
 #include <iostream>
 #include <sstream>
 #include <unordered_map>
+#include <optional>
 #include "unistd.h"
 
 #include "socketRoutine.hpp"

@@ -14,7 +14,9 @@ int main(int argc, char **argv) {
     while(1) {
         std::string message;
         std::string command = " ";
-        message = ReceiveMessage(&(task.parent));
+        if (auto msg = ReceiveMessage(&(task.parent)); msg.has_value()) {
+            message = *msg;
+        }
         std::istringstream request(message);
         request >> command;
 

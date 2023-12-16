@@ -39,19 +39,9 @@ bool SendMessage(zmq::socket_t *socket, const std::string& msg) {
     }
 }
 
-std::string ReceiveMessage(zmq::socket_t *socket) {
+std::optional<std::string> ReceiveMessage(zmq::socket_t *socket) {
     zmq::message_t message;
-    bool success = true;
-    try {
-        socket->recv(&message, 0);
-    } catch(...) { 
-        success = false;
-    }
-
-    if (!success || message.size() == 0) {
-        throw std::runtime_error("Error: Node is unavailable");
-    }
-
+    socket->recv(&message, 0);
     std::string received(static_cast<char*>(message.data()), message.size());
-    return received;
+    return received.empty() ? std::nullopt : std::make_optional(received);
 }
