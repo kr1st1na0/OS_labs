@@ -4,6 +4,7 @@
 #include <sstream>
 #include <unordered_map>
 #include <optional>
+#include <memory>
 #include "unistd.h"
 
 #include "socketRoutine.hpp"
@@ -12,7 +13,7 @@ class Node{
 private:
     zmq::context_t context;
 public:
-    std::unordered_map<int, zmq::socket_t*> children;
+    std::unordered_map<int, std::unique_ptr<zmq::socket_t> > children;
     std::unordered_map<int, int> childrenPort;
     int id;
     zmq::socket_t parent;

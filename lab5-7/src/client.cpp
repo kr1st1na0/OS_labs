@@ -73,7 +73,7 @@ int main() {
                     }
                     ans = "Ok";
                     if(task.children.find(id) != task.children.end()) {
-                        Unbind(task.children[id], task.childrenPort[id]);
+                        Unbind(task.children[id].get(), task.childrenPort[id]);
                         task.children[id]->close();
                         task.children.erase(id);
                         task.childrenPort.erase(id);
