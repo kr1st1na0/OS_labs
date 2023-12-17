@@ -56,3 +56,16 @@ target_link_libraries(lab4_test2 PRIVATE GTest::GTest)
 target_include_directories(lab4_test2 PRIVATE ../lab4/include)
 
 add_test(lab4_test2 lab4_test2)
+
+# Lab 5-7
+
+set(CMAKE_CXX_FLAGS "-lzmq")
+add_compile_options(-Wno-error=deprecated-declarations -Wdeprecated-declarations)
+
+add_executable(lab5-7_test lab5-7_test.cpp ../lab5-7/src/nodeRoutine.cpp ../lab5-7/src/socketRoutine.cpp)
+target_link_libraries(lab5-7_test PRIVATE GTest::GTest)
+target_include_directories(lab5-7_test PRIVATE ../lab5-7/include)
+
+target_link_libraries(lab5-7_test PRIVATE zmq)
+
+add_test(lab5-7_test lab5-7_test)
