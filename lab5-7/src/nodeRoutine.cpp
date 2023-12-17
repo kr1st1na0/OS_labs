@@ -7,12 +7,10 @@ std::string Node::Ping(int _id) {
         return ans;
     } else if (auto it = children.find(_id); it != children.end()) {
         std::string msg = "ping " + std::to_string(_id);
-        SendMessage(it->second.get(), msg);
-        try {            
-            if (auto msg = ReceiveMessage(children[_id].get()); msg.has_value(), msg == "Ok: 1") {
-                ans = *msg;
-            }
-        } catch(int) {}
+        SendMessage(it->second.get(), msg);          
+        if (auto msg = ReceiveMessage(children[_id].get()); msg.has_value(), msg == "Ok: 1") {
+            ans = *msg;
+        }
         return ans;
     }
     return ans;
@@ -29,16 +27,11 @@ std::string Node::Create(int idChild, const std::string& programPath) {
     if (pid == 0) { // Child process
         execl(programPath.c_str(), programName.c_str(), std::to_string(idChild).c_str(), std::to_string(newPort).c_str(), nullptr);
     } else { // Parent process
-        std::string pidChild;
-        try {
-            children[idChild]->setsockopt(ZMQ_SNDTIMEO,  3000);
-            SendMessage(children[idChild].get(), "pid");
-            if (auto msg = ReceiveMessage(children[idChild].get()); msg.has_value()) {
-                pidChild = *msg;
-            }
-
-        } catch(int) {
-            pidChild = "Error: couldn't connect to child";
+        std::string pidChild = "Error: couldn't connect to child";
+        children[idChild]->setsockopt(ZMQ_SNDTIMEO,  3000);
+        SendMessage(children[idChild].get(), "pid");
+        if (auto msg = ReceiveMessage(children[idChild].get()); msg.has_value()) {
+            pidChild = *msg;
         }
         return "Ok: " + pidChild;
     }
@@ -54,13 +47,9 @@ std::string Node::Send(const std::string& str, int id) {
         return "Error: Not found";
     } else if (auto it = children.find(id); it != children.end()) {
         if (SendMessage(it->second.get(), str)) {
-            std::string ans;
-            try {
-                if (auto msg = ReceiveMessage(children[id].get()); msg.has_value()) {
-                    ans = *msg;
-                }
-            } catch(int) {
-                ans = "Error: Not found";
+            std::string ans = "Error: Not found";
+            if (auto msg = ReceiveMessage(children[id].get()); msg.has_value()) {
+                ans = *msg;
             }
             return ans;
         }
@@ -69,14 +58,9 @@ std::string Node::Send(const std::string& str, int id) {
         for (auto& child : children) {
             std::string msg = "send " + std::to_string(id) + " " + str;
             if (SendMessage(child.second.get(), msg)) {
-                try {
-                    if (auto tmp = ReceiveMessage(child.second.get()); tmp.has_value()) {
-                        msg = *tmp;
-                    }
-                } catch(int) {
-                    msg = "Error: Not found";
+                if (auto msg = ReceiveMessage(child.second.get()); msg.has_value()) {
+                    ans = *msg;
                 }
-                ans = msg;
             }
         }
         return ans;
@@ -89,15 +73,14 @@ std::string Node::Kill() {
     for (auto& child : children) {
         std::string msg = "kill";
         if (SendMessage(child.second.get(), msg)) {
-            try {
-                if (auto tmp = ReceiveMessage(child.second.get()); tmp.has_value()) {
-                    msg = *tmp;
-                }
-                if (ans.size() > 0)
-                    ans = ans + " " + msg;
-                else
-                    ans =  msg;
-            } catch(int) {}
+            if (auto tmp = ReceiveMessage(child.second.get()); tmp.has_value()) {
+                msg = *tmp;
+            }
+            if (ans.size() > 0) {
+                ans = ans + " " + msg;
+            } else {
+                ans =  msg;
+            }
         }
         Unbind(child.second.get(), childrenPort[child.first]);
         child.second->close();
