@@ -1,0 +1,638 @@
+\documentclass[a4paper, 12pt]{article}
+\usepackage{cmap}
+\usepackage[12pt]{extsizes}			
+\usepackage{mathtext} 				
+\usepackage[T2A]{fontenc}			
+\usepackage[utf8]{inputenc}			
+\usepackage[english,russian]{babel}
+\usepackage{setspace}
+\singlespacing
+\usepackage{amsmath,amsfonts,amssymb,amsthm,mathtools}
+\usepackage{fancyhdr}
+\usepackage{soulutf8}
+\usepackage{euscript}
+\usepackage{mathrsfs}
+\usepackage{listings}
+
+\usepackage[colorlinks=true, urlcolor=blue, linkcolor=red]{hyperref}
+
+\pagestyle{fancy}
+\usepackage{indentfirst}
+\usepackage[top=10mm]{geometry}
+\rhead{}
+\lhead{}
+\renewcommand{\headrulewidth}{0mm}
+\usepackage{tocloft}
+\renewcommand{\cftsecleader}{\cftdotfill{\cftdotsep}}
+\usepackage[dvipsnames]{xcolor}
+
+\lstdefinestyle{mystyle}{ 
+	keywordstyle=\color{OliveGreen},
+	numberstyle=\tiny\color{Gray},
+	stringstyle=\color{BurntOrange},
+	basicstyle=\ttfamily\footnotesize,
+	breakatwhitespace=false,         
+	breaklines=true,                 
+	captionpos=b,                    
+	keepspaces=true,                 
+	numbers=left,                    
+	numbersep=5pt,                  
+	showspaces=false,                
+	showstringspaces=false,
+	showtabs=false,                  
+	tabsize=2
+}
+
+\lstset{style=mystyle}
+
+\begin{document}
+\thispagestyle{empty}	
+\begin{center}
+	Московский авиационный институт
+	
+	(Национальный исследовательский университет)
+	
+	Факультет "Информационные технологии и прикладная математика"
+	
+	Кафедра "Вычислительная математика и программирование"
+	
+\end{center}
+\vspace{40ex}
+\begin{center}
+	\textbf{\large{Лабораторная работа №5-7 по курсу\linebreak \textquotedblleft Операционные системы\textquotedblright}}
+\end{center}
+\vspace{35ex}
+\begin{flushright}
+	\textit{Студент: } Былькова Кристина Алексеевна
+	
+	\vspace{2ex}
+	\textit{Группа: } М8О-208Б-22
+	
+	\vspace{2ex}
+	\textit{Преподаватель: } Миронов Евгений Сергеевич
+	
+	\vspace{2ex}
+	\textit{Вариант: } 43
+	
+	\vspace{2ex}
+	\textit{Оценка: } \underline{\quad\quad\quad\quad\quad\quad}
+	
+	 \vspace{2ex}
+	\textit{Дата: } \underline{\quad\quad\quad\quad\quad\quad}
+	
+	\vspace{2ex}
+	\textit{Подпись: } \underline{\quad\quad\quad\quad\quad\quad}
+	
+\end{flushright}
+
+\vspace{5ex}
+
+\begin{vfill}
+	\begin{center}
+		Москва, 2023
+	\end{center}	
+\end{vfill}
+\newpage
+
+\begingroup
+\color{black}
+\tableofcontents\newpage
+\endgroup
+
+\section{Репозиторий}
+\href{https://github.com/kr1st1na0/OS\_labs}{https://github.com/kr1st1na0/OS\_labs}
+
+\section{Цель работы}
+Приобретение практических навыков в:
+\begin{itemize}
+  \item Управлении серверами сообщений
+  \item Применении отложенных вычислений
+  \item Интеграции программных систем друг с другом
+\end{itemize}
+
+\section{Задание}
+Реализовать распределенную систему по асинхронной обработке запросов. В данной распределенной системе должно существовать 2 вида узлов: «управляющий» и «вычислительный». Необходимо объединить данные узлы в соответствии с той топологией, которая определена вариантом. Связь между узлами необходимо осуществить при помощи технологии очередей сообщений. Также в данной системе необходимо предусмотреть проверку доступности узлов в соответствии с вариантом.
+
+\section{Описание работы программы}
+Топология 2:
+
+Все вычислительные узлы находятся в дереве общего вида. Есть только один управляющий узел. Чтобы добавить новый вычислительный узел к управляющему, то необходимо выполнить команду: create id -1.
+
+Набор команд 1:
+
+Подсчет суммы n чисел - формат команды: exec id n k\textsubscript{1} … k\textsubscript{n} id – целочисленный идентификатор вычислительного узла, на который отправляется команда n – количество складываемых чисел, k\textsubscript{1} … k\textsubscript{n} – складываемые числа.
+
+Команда проверки 2:
+
+Формат команды: ping id Команда проверяет доступность конкретного узла. Если узла нет, то необходимо выводить ошибку: «Error: Not found».
+
+В ходе выполнения лабораторной работы я использовала библиотеку ZeroMQ и следующие команды:
+\begin{itemize}
+  \item bind() - устанавливает "сокет" на адрес, а затем принимает входящие соединения на этом адресе.
+  \item unbind() - отвязывает сокет от адреса
+  \item connect() - создание соединения между сокетом и адресом
+  \item disconnect() - разрывает соединение между сокетом и адресом
+  \item send() - отправка сообщений
+  \item recv() - получение сообщений
+\end{itemize}
+
+
+\newpage
+
+\section{Исходный код}
+nodeRoutine.hpp
+\begin{lstlisting}[language=C++]
+#pragma once
+
+#include <iostream>
+#include <sstream>
+#include <unordered_map>
+#include <optional>
+#include <memory>
+#include "unistd.h"
+
+#include "socketRoutine.hpp"
+
+class Node{
+private:
+    zmq::context_t context;
+public:
+    std::unordered_map<int, std::unique_ptr<zmq::socket_t> > children;
+    std::unordered_map<int, int> childrenPort;
+    int id;
+    zmq::socket_t parent;
+    int parentPort;
+
+    Node(int _id, int _parentPort = -1): id(_id), parent(context, ZMQ_REP), parentPort(_parentPort) {
+        if(_id != -1) {
+            Connect(&parent, _parentPort);
+        }
+    }
+
+    std::string Ping(int _id);
+    std::string Create(int idChild, const std::string& programPath);
+    std::string Pid();
+    std::string Send(const std::string& str, int _id);
+    std::string Kill();
+};
+\end{lstlisting}
+
+socketRoutine.hpp
+\begin{lstlisting}[language=C++]
+#pragma once
+
+#include <iostream>
+#include <sstream>
+#include <string>
+#include <optional>
+
+#include <zmq.hpp>
+
+int Bind(zmq::socket_t *socket, int id);
+void Unbind(zmq::socket_t *socket, int port);
+
+void Connect(zmq::socket_t *socket, int port);
+void Disconnect(zmq::socket_t *socket, int port);
+
+bool SendMessage(zmq::socket_t *socket, const std::string& msg);
+std::optional<std::string> ReceiveMessage(zmq::socket_t *socket);
+\end{lstlisting}
+
+nodeRoutine.cpp
+\begin{lstlisting}[language=C++]
+#include "nodeRoutine.hpp"
+
+std::string Node::Ping(int _id) {
+    std::string ans = "Ok: 0";
+    if (_id == id) {
+        ans = "Ok: 1";
+        return ans;
+    } else if (auto it = children.find(_id); it != children.end()) {
+        std::string msg = "ping " + std::to_string(_id);
+        SendMessage(it->second.get(), msg);          
+        if (auto msg = ReceiveMessage(children[_id].get()); msg.has_value(), msg == "Ok: 1") {
+            ans = *msg;
+        }
+        return ans;
+    }
+    return ans;
+} 
+
+std::string Node::Create(int idChild, const std::string& programPath) {
+    std::string programName = programPath.substr(programPath.find_last_of("/") + 1);
+    children[idChild] = std::make_unique<zmq::socket_t>(context, ZMQ_REQ);
+    
+    int newPort = Bind(children[idChild].get(), idChild);
+    childrenPort[idChild] = newPort;
+    int pid = fork();
+    
+    if (pid == 0) { // Child process
+        execl(programPath.c_str(), programName.c_str(), std::to_string(idChild).c_str(), std::to_string(newPort).c_str(), nullptr);
+    } else { // Parent process
+        std::string pidChild = "Error: couldn't connect to child";
+        children[idChild]->setsockopt(ZMQ_SNDTIMEO,  3000);
+        SendMessage(children[idChild].get(), "pid");
+        if (auto msg = ReceiveMessage(children[idChild].get()); msg.has_value()) {
+            pidChild = *msg;
+        }
+        return "Ok: " + pidChild;
+    }
+    return 0;
+}
+
+std::string Node::Pid() {
+    return std::to_string(getpid());
+}
+
+std::string Node::Send(const std::string& str, int id) {
+    if (children.size() == 0) {
+        return "Error: Not found";
+    } else if (auto it = children.find(id); it != children.end()) {
+        if (SendMessage(it->second.get(), str)) {
+            std::string ans = "Error: Not found";
+            if (auto msg = ReceiveMessage(children[id].get()); msg.has_value()) {
+                ans = *msg;
+            }
+            return ans;
+        }
+    } else {
+        std::string ans = "Error: Not found";
+        for (auto& child : children) {
+            std::string msg = "send " + std::to_string(id) + " " + str;
+            if (SendMessage(child.second.get(), msg)) {
+                if (auto msg = ReceiveMessage(child.second.get()); msg.has_value()) {
+                    ans = *msg;
+                }
+            }
+        }
+        return ans;
+    }
+    return 0;
+}
+
+std::string Node::Kill() {
+    std::string ans;
+    for (auto& child : children) {
+        std::string msg = "kill";
+        if (SendMessage(child.second.get(), msg)) {
+            if (auto tmp = ReceiveMessage(child.second.get()); tmp.has_value()) {
+                msg = *tmp;
+            }
+            if (ans.size() > 0) {
+                ans = ans + " " + msg;
+            } else {
+                ans =  msg;
+            }
+        }
+        Unbind(child.second.get(), childrenPort[child.first]);
+        child.second->close();
+    }
+    children.clear();
+    childrenPort.clear();
+    return ans;
+}
+\end{lstlisting}
+
+socketRoutine.cpp
+\begin{lstlisting}[language=C++]
+#include "socketRoutine.hpp"
+
+int Bind(zmq::socket_t *socket, int id) {
+    int port = 4040 + id;
+    while(true) {
+        std::string address = "tcp://127.0.0.1:"  + std::to_string(port);
+        try{
+            socket->bind(address);
+            break;
+        } catch(...) {
+            port++;
+        }    
+    }
+    return port;
+}
+void Unbind(zmq::socket_t *socket, int port) {
+    std::string address = "tcp://127.0.0.1:" + std::to_string(port);
+    socket->unbind(address);
+}
+
+void Connect(zmq::socket_t *socket, int port) {
+    std::string address = "tcp://127.0.0.1:" + std::to_string(port);
+    socket->connect(address);
+}
+
+void Disconnect(zmq::socket_t *socket, int port) {
+    std::string address = "tcp://127.0.0.1:" + std::to_string(port);
+    socket->disconnect(address);
+}
+
+bool SendMessage(zmq::socket_t *socket, const std::string& msg) {
+    zmq::message_t message(msg.size());
+    memcpy(message.data(), msg.c_str(), msg.size());
+    try {
+        socket->send(message, 0);
+        return true;
+    } catch(...) {
+        return false;
+    }
+}
+
+std::optional<std::string> ReceiveMessage(zmq::socket_t *socket) {
+    zmq::message_t message;
+    socket->recv(&message, 0);
+    std::string received(static_cast<char*>(message.data()), message.size());
+    return received.empty() ? std::nullopt : std::make_optional(received);
+}
+\end{lstlisting}
+
+server.cpp
+\begin{lstlisting}[language=C++]
+#include "nodeRoutine.hpp"
+#include "socketRoutine.hpp"
+#include <fstream>
+#include <signal.h>
+
+int main(int argc, char **argv) {
+    if (argc != 3) {
+        perror("Not enough arguments");
+        exit(EXIT_FAILURE);
+    }
+    
+    Node task(atoi(argv[1]), atoi(argv[2]));
+    std::string programPath = getenv("PROGRAM_PATH");
+    while(1) {
+        std::string message;
+        std::string command = " ";
+        if (auto msg = ReceiveMessage(&(task.parent)); msg.has_value()) {
+            message = *msg;
+        }
+        std::istringstream request(message);
+        request >> command;
+
+        if (command == "create") {
+            int idChild;
+            request >> idChild;
+            std::string ans = task.Create(idChild, programPath);
+            SendMessage(&task.parent, ans);
+        } else if (command == "pid") {
+            std::string ans = task.Pid();
+            SendMessage(&task.parent, ans);
+        } else if (command == "ping") {
+            int idChild;
+            request >> idChild;
+            std::string ans = task.Ping(idChild);
+            SendMessage(&task.parent, ans);
+        } else if (command == "send") {
+            int id;
+            request >> id;
+            std::string str;
+            getline(request, str);
+            str.erase(0, 1);
+            std::string ans;
+            ans = task.Send(str, id);
+            SendMessage(&task.parent, ans);
+        } else if (command == "exec") {
+            int cnt, sum = 0, number;
+            request >> cnt;
+            for(int i = 0; i < cnt; i++) {
+                request >> number;
+                sum += number;
+            }
+            std::string to_send;
+            to_send = "Ok: " + std::to_string(task.id) + ": " + std::to_string(sum);
+            SendMessage(&task.parent,to_send);
+        } else if (command == "kill") {
+            std::string ans = task.Kill();
+            ans = std::to_string(task.id) + " " + ans;
+            SendMessage(&task.parent, ans);
+            Disconnect(&task.parent, task.parentPort);
+            task.parent.close();
+            break;
+        }
+    }
+
+    return 0;
+}
+\end{lstlisting}
+
+client.cpp
+\begin{lstlisting}[language=C++]
+#include "set"
+
+#include "nodeRoutine.hpp"
+#include "socketRoutine.hpp"
+
+int main() {
+    std::set<int> Nodes;
+    std::string programPath = getenv("PROGRAM_PATH");
+    Node task(-1);
+    Nodes.insert(-1);
+    std::string command;
+    while (std::cin >> command) {
+        if (command == "create") {
+            int idChild, idParent;
+            std::cin >> idChild >> idParent;
+            if (Nodes.find(idChild) != Nodes.end()) {
+                std::cout << "Error: Already exists" << std::endl;
+            } else if (Nodes.find(idParent) == Nodes.end()) {
+                std::cout << "Error: Parent not found" << std::endl;
+            }else if (idParent == task.id) { // from -1
+                std::string ans = task.Create(idChild, programPath);
+                std::cout << ans << std::endl;
+                Nodes.insert(idChild);
+            } else { // from other node
+                std::string str = "create " + std::to_string(idChild);
+                std::string ans = task.Send(str, idParent);
+                std::cout << ans << std::endl;
+                Nodes.insert(idChild);
+            }   
+        } else if (command == "ping") {
+            int idChild;
+            std::cin >> idChild;
+            if (Nodes.find(idChild) == Nodes.end()) {
+                std::cout << "Error: Not found" << std::endl;
+            } else if (task.children.find(idChild) != task.children.end()) {
+                std::string ans = task.Ping(idChild);
+                std::cout << ans << std::endl;
+            } else {
+                std::string str = "ping " + std::to_string(idChild);
+                std::string ans = task.Send(str, idChild);
+                if (ans == "Error: Not found") {
+                    ans = "Ok: 0";
+                }
+                std::cout << ans << std::endl;
+            }
+        }else if (command == "exec") {
+            int id, number, count;
+            std::cin >> id >> count;
+            std::string msg = "exec " + std::to_string(count); 
+            for (int i = 0; i < count; i++) {
+                std::cin >> number;
+                msg += " " + std::to_string(number);
+            }
+            if (Nodes.find(id) == Nodes.end()) {
+                std::cout << "Error: Not found" << std::endl;
+            } else {
+                std::string ans = task.Send(msg, id);
+                std::cout << ans << std::endl;
+            }
+        }else if(command == "kill") {
+            int id;
+            std::cin >> id;
+            std::string msg = "kill";
+            if (Nodes.find(id) == Nodes.end()) {
+                std::cout << "Error: Not found" << std::endl;
+            } else {
+                std::string ans = task.Send(msg, id);
+                if (ans != "Error: Not found") {
+                    std::istringstream ids(ans);
+                    int tmp;
+                    while(ids >> tmp) {
+                        Nodes.erase(tmp);
+                    }
+                    ans = "Ok";
+                    if(task.children.find(id) != task.children.end()) {
+                        Unbind(task.children[id].get(), task.childrenPort[id]);
+                        task.children[id]->close();
+                        task.children.erase(id);
+                        task.childrenPort.erase(id);
+                    }
+                }
+                std::cout << ans << std::endl;
+            }
+        } else if (command == "exit") {
+            task.Kill();
+            return 0;
+        }
+    }
+}
+\end{lstlisting}
+
+\newpage
+\section{Тесты}
+\begin{lstlisting}[language=C++]
+#include <gtest/gtest.h>
+
+#include "set"
+
+#include "nodeRoutine.hpp"
+#include "socketRoutine.hpp"
+
+TEST(FifthSeventhLabTests, PingTest) {
+    std::string programPath = getenv("PROGRAM_PATH");
+    std::set<int> Nodes;
+    Node task(-1);
+    Nodes.insert(-1);
+    task.Create(1, programPath);
+    Nodes.insert(1);
+
+    std::string ans = task.Send("ping 1", 1);
+    EXPECT_EQ(ans, "Ok: 1");
+
+    ans = task.Send("ping 2", 2);
+    EXPECT_EQ(ans, "Error: Not found");
+
+    task.Kill();
+}
+
+TEST(FifthSeventhLabTests, ExecTest) {
+    std::string programPath = getenv("PROGRAM_PATH");
+    std::set<int> Nodes;
+    Node task(-1);
+    Nodes.insert(-1);
+    task.Create(1, programPath);
+    Nodes.insert(1);
+
+    std::string ans = task.Send("exec 5 6 4 2 8 5", 1);
+    EXPECT_EQ(ans, "Ok: 1: 25");
+
+    task.Kill();
+}
+
+TEST(FifthSeventhLabTests, FullTest) {
+    std::string programPath = getenv("PROGRAM_PATH");
+    std::string ans;
+    std::set<int> Nodes;
+    Node task(-1);
+    Nodes.insert(-1);
+    task.Create(1, programPath);
+    Nodes.insert(1);
+    task.Send("create 2", 1);
+    Nodes.insert(2);
+    task.Send("create 3", 2);
+    Nodes.insert(3);
+    
+    ans = task.Send("ping 1", 1);
+    EXPECT_EQ(ans, "Ok: 1");
+    ans = task.Send("ping 2", 2);
+    EXPECT_EQ(ans, "Ok: 1");
+
+    ans = task.Send("exec 3 1 2 3", 2);
+    EXPECT_EQ(ans, "Ok: 2: 6");
+
+    ans = task.Send("exec 5 1 1 1 1 1", 3);
+    EXPECT_EQ(ans, "Ok: 3: 5");
+
+    task.Kill();
+}
+
+int main(int argc, char *argv[]) {
+    std::cout << getenv("PROGRAM_PATH") << std::endl;
+    // bash: export PROGRAM_PATH="/home/kristinab/ubuntu_main/OS_labs/build/lab5-7/server"
+    testing::InitGoogleTest(&argc, argv);
+    return RUN_ALL_TESTS();
+}
+\end{lstlisting}
+
+\newpage
+
+\section{Консоль}
+\begin{verbatim}
+kristinab@LAPTOP-SFU9B1F4:~/ubuntu_main/OS_labs/build/lab5-7$ ./client
+create 1 -1
+Ok: 28795
+create 2 -1
+Ok: 28801
+create 3 1
+Ok: 28807
+ping 1
+Ok: 1
+ping 2
+Ok: 1
+ping 3
+Ok: 1
+kill 3
+Ok
+ping 3
+Error: Not found
+exec 1 5 1 2 3 4 1
+Ok: 1: 11
+kill 2
+Ok
+exit
+\end{verbatim}
+
+\section{Запуск тестов}
+\begin{verbatim}
+kristinab@LAPTOP-SFU9B1F4:~/ubuntu_main/OS_labs/build/tests$ ./lab5-7_test
+/home/kristinab/ubuntu_main/OS_labs/build/lab5-7/server
+[==========] Running 3 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 3 tests from FifthSeventhLabTests
+[ RUN      ] FifthSeventhLabTests.PingTest
+[       OK ] FifthSeventhLabTests.PingTest (23 ms)
+[ RUN      ] FifthSeventhLabTests.ExecTest
+[       OK ] FifthSeventhLabTests.ExecTest (3 ms)
+[ RUN      ] FifthSeventhLabTests.FullTest
+[       OK ] FifthSeventhLabTests.FullTest (12 ms)
+[----------] 3 tests from FifthSeventhLabTests (39 ms total)
+
+[----------] Global test environment tear-down
+[==========] 3 tests from 1 test suite ran. (39 ms total)
+[  PASSED  ] 3 tests.
+\end{verbatim}
+\newpage
+
+\section{Выводы}
+
+В результате выполнения данной лабораторной работы была реализована распределенная система по асинхронной обработке запросов в соответствие с вариантом задания на С++. Я приобрела практические навыки в управлении серверами сообщений, применении отложенных вычислений и интеграции программных систем друг с другом.
+\end{document}
